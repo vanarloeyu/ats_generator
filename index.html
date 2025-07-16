@@ -131,19 +131,31 @@
             margin-top: 1rem;
             padding-left: 1rem;
             border-left: 2px solid #d1d5db;
+            display: flex;
+            flex-direction: column; /* Ensures items stack vertically */
         }
         .bullet-point-item {
+            /* This item should now act as a block to force new lines */
+            display: block; /* Ensures each bullet point item is on its own line */
+            margin-bottom: 0.5rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        /* New style for the inner div that contains the input and button */
+        .bullet-point-item > div {
             display: flex;
             align-items: center;
-            margin-bottom: 0.5rem;
+            width: 100%;
+            gap: 0.5rem; /* Space between input and button */
         }
         .bullet-point-item input {
             flex-grow: 1;
-            margin-right: 0.5rem;
+            /* margin-right: 0.5rem; Removed as gap handles spacing */
         }
         .bullet-point-item .remove-button {
             margin-left: 0;
             position: static;
+            flex-shrink: 0; /* Prevent button from shrinking */
         }
         .download-buttons-container {
             display: flex;
@@ -250,16 +262,22 @@
                             <label class="field-label">Responsibilities & Achievements (use bullet points)</label>
                             <div class="bullet-point-container">
                                 <div class="bullet-point-item">
-                                    <input type="text" class="responsibility-input" placeholder="Developed and maintained full-stack web applications using React, Node.js, and MongoDB, resulting in a 15% increase in user engagement.">
-                                    <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                    <div>
+                                        <input type="text" class="responsibility-input" placeholder="Developed and maintained full-stack web applications using React, Node.js, and MongoDB, resulting in a 15% increase in user engagement.">
+                                        <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                    </div>
                                 </div>
                                 <div class="bullet-point-item">
-                                    <input type="text" class="responsibility-input" placeholder="Led a team of 3 junior developers, providing mentorship and code reviews to ensure best practices and project deadlines.">
-                                    <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                    <div>
+                                        <input type="text" class="responsibility-input" placeholder="Led a team of 3 junior developers, providing mentorship and code reviews to ensure best practices and project deadlines.">
+                                        <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                    </div>
                                 </div>
                                 <div class="bullet-point-item">
-                                    <input type="text" class="responsibility-input" placeholder="Optimized database queries, reducing load times by 20% and improving system performance.">
-                                    <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                    <div>
+                                        <input type="text" class="responsibility-input" placeholder="Optimized database queries, reducing load times by 20% and improving system performance.">
+                                        <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                    </div>
                                 </div>
                                 <button type="button" class="add-button" onclick="addBulletPoint(this)">+ Add Bullet Point</button>
                             </div>
@@ -354,12 +372,16 @@
                             <label class="field-label">Details (use bullet points)</label>
                             <div class="bullet-point-container">
                                 <div class="bullet-point-item">
-                                    <input type="text" class="optional-detail-input" placeholder="AWS Certified Solutions Architect - Associate (2023)">
-                                    <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                    <div>
+                                        <input type="text" class="optional-detail-input" placeholder="AWS Certified Solutions Architect - Associate (2023)">
+                                        <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                    </div>
                                 </div>
                                 <div class="bullet-point-item">
-                                    <input type="text" class="optional-detail-input" placeholder="Project Management Professional (PMP) Certification (2022)">
-                                    <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                    <div>
+                                        <input type="text" class="optional-detail-input" placeholder="Project Management Professional (PMP) Certification (2022)">
+                                        <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                    </div>
                                 </div>
                                 <button type="button" class="add-button" onclick="addBulletPoint(this)">+ Add Bullet Point</button>
                             </div>
@@ -403,8 +425,10 @@
             const container = button.previousElementSibling; // The .bullet-point-container
             const newBulletPoint = createElement('div', ['bullet-point-item']);
             newBulletPoint.innerHTML = `
-                <input type="text" class="responsibility-input" placeholder="Quantify your achievements and responsibilities using action verbs and numbers.">
-                <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                <div>
+                    <input type="text" class="responsibility-input" placeholder="Quantify your achievements and responsibilities using action verbs and numbers.">
+                    <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                </div>
             `;
             container.appendChild(newBulletPoint);
             setupAutofill(newBulletPoint.querySelector('.responsibility-input')); // Setup autofill for new input
@@ -442,8 +466,10 @@
                     <label class="field-label">Responsibilities & Achievements (use bullet points)</label>
                     <div class="bullet-point-container">
                         <div class="bullet-point-item">
-                            <input type="text" class="responsibility-input" placeholder="Developed and launched new features, increasing user engagement by 25%.">
-                            <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                            <div>
+                                <input type="text" class="responsibility-input" placeholder="Developed and launched new features, increasing user engagement by 25%.">
+                                <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                            </div>
                         </div>
                         <button type="button" class="add-button" onclick="addBulletPoint(this)">+ Add Bullet Point</button>
                     </div>
@@ -547,8 +573,10 @@
                     <label class="field-label">Details (use bullet points)</label>
                     <div class="bullet-point-container">
                         <div class="bullet-point-item">
-                            <input type="text" class="optional-detail-input" placeholder="Developed a real-time chat application using WebSockets and Node.js.">
-                            <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                            <div>
+                                <input type="text" class="optional-detail-input" placeholder="Developed a real-time chat application using WebSockets and Node.js.">
+                                <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                            </div>
                         </div>
                         <button type="button" class="add-button" onclick="addBulletPoint(this)">+ Add Bullet Point</button>
                     </div>
