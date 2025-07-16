@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS-Friendly Resume Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 0.25rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        input[type="url"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        .field-label {
+            font-weight: 600;
+            color: #4b5563;
+            margin-top: 1rem;
+            display: block;
+        }
+        .guidance {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        .add-button {
+            background-color: #22c55e;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .add-button:hover {
+            background-color: #16a34a;
+        }
+        .remove-button {
+            background-color: #ef4444;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-left: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .remove-button:hover {
+            background-color: #dc2626;
+        }
+        .generate-button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            width: 100%;
+            margin-top: 2rem;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+        }
+        .generate-button:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+        .generate-button:active {
+            transform: translateY(0);
+        }
+        .experience-item, .education-item, .skill-category-item, .optional-item {
+            border: 1px solid #e5e7eb;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            background-color: #f9fafb;
+            position: relative;
+        }
+        .experience-item .remove-button,
+        .education-item .remove-button,
+        .skill-category-item .remove-button,
+        .optional-item .remove-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+        .bullet-point-container {
+            margin-top: 1rem;
+            padding-left: 1rem;
+            border-left: 2px solid #d1d5db;
+        }
+        .bullet-point-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .bullet-point-item input {
+            flex-grow: 1;
+            margin-right: 0.5rem;
+        }
+        .bullet-point-item .remove-button {
+            margin-left: 0;
+            position: static;
+        }
+        .download-buttons-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+            justify-content: center;
+        }
+        .download-button {
+            flex: 1; /* Distribute space evenly */
+            min-width: 150px; /* Minimum width for buttons */
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .download-button.doc-only {
+            background-color: #2563eb;
+            color: white;
+        }
+        .download-button.doc-only:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">ATS-Friendly Resume Builder</h1>
+        <p class="text-center text-gray-600 mb-8">Fill in your details below to generate a resume optimized for Applicant Tracking Systems. Remember to use keywords from job descriptions!</p>
+
+        <form id="resumeForm" class="space-y-8">
+            <!-- Personal Information Section -->
+            <section>
+                <h2 class="section-title">Personal Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="name" class="field-label">Full Name</label>
+                        <input type="text" id="name" placeholder="John Doe" class="rounded-lg" required>
+                        <p class="guidance">Enter your full legal name.</p>
+                    </div>
+                    <div>
+                        <label for="email" class="field-label">Email</label>
+                        <input type="email" id="email" placeholder="john.doe@example.com" class="rounded-lg" required>
+                        <p class="guidance">Provide a professional email address.</p>
+                    </div>
+                    <div>
+                        <label for="phone" class="field-label">Phone Number</label>
+                        <input type="tel" id="phone" placeholder="(123) 456-7890" class="rounded-lg">
+                        <p class="guidance">Include your primary contact number.</p>
+                    </div>
+                    <div>
+                        <label for="linkedin" class="field-label">LinkedIn Profile URL</label>
+                        <input type="url" id="linkedin" placeholder="https://www.linkedin.com/in/johndoe" class="rounded-lg">
+                        <p class="guidance">A professional LinkedIn profile is highly recommended.</p>
+                    </div>
+                    <div>
+                        <label for="portfolio" class="field-label">Portfolio/Website URL (Optional)</label>
+                        <input type="url" id="portfolio" placeholder="https://www.yourportfolio.com" class="rounded-lg">
+                        <p class="guidance">Add if you have a relevant online portfolio or personal website.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Professional Summary Section -->
+            <section>
+                <h2 class="section-title">Professional Summary / Objective</h2>
+                <label for="summary" class="field-label">Summary</label>
+                <textarea id="summary" rows="5" placeholder="Highly motivated Software Engineer with 5+ years of experience in developing scalable web applications using React and Node.js. Proven ability to lead cross-functional teams and deliver high-quality code on time. Seeking to leverage technical expertise to contribute to innovative projects at [Company Name]." class="rounded-lg" required></textarea>
+                <p class="guidance">Write a concise 3-5 sentence summary. Include your key skills, years of experience, and career goals. **Incorporate keywords directly from the job description** you're applying for.</p>
+            </section>
+
+            <!-- Work Experience Section -->
+            <section>
+                <h2 class="section-title">Work Experience</h2>
+                <div id="experienceContainer" class="space-y-6">
+                    <!-- Dummy Experience Item -->
+                    <div class="experience-item">
+                        <button type="button" class="remove-button" onclick="removeExperience(this)">Remove</button>
+                        <div>
+                            <label class="field-label">Job Title</label>
+                            <input type="text" class="job-title-input" placeholder="Software Engineer">
+                            <p class="guidance">Use the exact job title from the job description if possible.</p>
+                        </div>
+                        <div class="mt-4">
+                            <label class="field-label">Company Name</label>
+                            <input type="text" class="company-name-input" placeholder="Tech Solutions Inc.">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label class="field-label">Location</label>
+                                <input type="text" class="job-location-input" placeholder="New York, NY">
+                            </div>
+                            <div>
+                                <label class="field-label">Dates (e.g., Jan 2020 - Present)</label>
+                                <input type="text" class="job-dates-input" placeholder="Jan 2020 - Present">
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <label class="field-label">Responsibilities & Achievements (use bullet points)</label>
+                            <div class="bullet-point-container">
+                                <div class="bullet-point-item">
+                                    <input type="text" class="responsibility-input" placeholder="Developed and maintained full-stack web applications using React, Node.js, and MongoDB, resulting in a 15% increase in user engagement.">
+                                    <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                </div>
+                                <div class="bullet-point-item">
+                                    <input type="text" class="responsibility-input" placeholder="Led a team of 3 junior developers, providing mentorship and code reviews to ensure best practices and project deadlines.">
+                                    <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                </div>
+                                <div class="bullet-point-item">
+                                    <input type="text" class="responsibility-input" placeholder="Optimized database queries, reducing load times by 20% and improving system performance.">
+                                    <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                </div>
+                                <button type="button" class="add-button" onclick="addBulletPoint(this)">+ Add Bullet Point</button>
+                            </div>
+                            <p class="guidance">Use strong action verbs. Quantify achievements with numbers and metrics. **Tailor bullet points to match keywords in the job description.**</p>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-button" onclick="addExperience()">+ Add Work Experience</button>
+            </section>
+
+            <!-- Education Section -->
+            <section>
+                <h2 class="section-title">Education</h2>
+                <div id="educationContainer" class="space-y-6">
+                    <!-- Dummy Education Item -->
+                    <div class="education-item">
+                        <button type="button" class="remove-button" onclick="removeEducation(this)">Remove</button>
+                        <div>
+                            <label class="field-label">Degree/Qualification</label>
+                            <input type="text" class="degree-input" placeholder="Bachelor of Science in Computer Science">
+                            <p class="guidance">e.g., Bachelor of Arts, Master of Science, Ph.D., High School Diploma.</p>
+                        </div>
+                        <div class="mt-4">
+                            <label class="field-label">University/Institution</label>
+                            <input type="text" class="university-input" placeholder="State University">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label class="field-label">Location</label>
+                                <input type="text" class="education-location-input" placeholder="City, State">
+                            </div>
+                            <div>
+                                <label class="field-label">Graduation Date (e.g., May 2019)</label>
+                                <input type="text" class="graduation-date-input" placeholder="May 2019">
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <label class="field-label">Relevant Coursework/GPA (Optional)</label>
+                            <input type="text" class="coursework-gpa-input" placeholder="Relevant Coursework: Data Structures, Algorithms; GPA: 3.8/4.0">
+                            <p class="guidance">Include GPA if 3.5 or higher. List relevant courses if you're a recent graduate.</p>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-button" onclick="addEducation()">+ Add Education</button>
+            </section>
+
+            <!-- Skills Section -->
+            <section>
+                <h2 class="section-title">Skills</h2>
+                <div id="skillsContainer" class="space-y-6">
+                    <!-- Dummy Skill Category -->
+                    <div class="skill-category-item">
+                        <button type="button" class="remove-button" onclick="removeSkillCategory(this)">Remove</button>
+                        <div>
+                            <label class="field-label">Skill Category (e.g., Programming Languages, Frameworks, Tools, Soft Skills)</label>
+                            <input type="text" class="skill-category-name-input" placeholder="Programming Languages">
+                        </div>
+                        <div class="mt-4">
+                            <label class="field-label">Skills (comma-separated)</label>
+                            <input type="text" class="skills-list-input" placeholder="JavaScript, Python, Java">
+                            <p class="guidance">List specific skills relevant to the job. **Use keywords directly from the job description.**</p>
+                        </div>
+                    </div>
+                    <div class="skill-category-item">
+                        <button type="button" class="remove-button" onclick="removeSkillCategory(this)">Remove</button>
+                        <div>
+                            <label class="field-label">Skill Category (e.g., Programming Languages, Frameworks, Tools, Soft Skills)</label>
+                            <input type="text" class="skill-category-name-input" placeholder="Soft Skills">
+                        </div>
+                        <div class="mt-4">
+                            <label class="field-label">Skills (comma-separated)</label>
+                            <input type="text" class="skills-list-input" placeholder="Problem-solving, Teamwork, Communication, Leadership">
+                            <p class="guidance">List specific skills relevant to the job. **Use keywords directly from the job description.**</p>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-button" onclick="addSkillCategory()">+ Add Skill Category</button>
+            </section>
+
+            <!-- Optional Sections -->
+            <section>
+                <h2 class="section-title">Optional Sections (Certifications, Projects, Awards, Volunteer Work)</h2>
+                <div id="optionalContainer" class="space-y-6">
+                    <!-- Dummy Optional Item -->
+                    <div class="optional-item">
+                        <button type="button" class="remove-button" onclick="removeOptional(this)">Remove</button>
+                        <div>
+                            <label class="field-label">Section Title (e.g., Certifications, Projects, Awards)</label>
+                            <input type="text" class="optional-title-input" placeholder="Certifications">
+                        </div>
+                        <div class="mt-4">
+                            <label class="field-label">Details (use bullet points)</label>
+                            <div class="bullet-point-container">
+                                <div class="bullet-point-item">
+                                    <input type="text" class="optional-detail-input" placeholder="AWS Certified Solutions Architect - Associate (2023)">
+                                    <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                </div>
+                                <div class="bullet-point-item">
+                                    <input type="text" class="optional-detail-input" placeholder="Project Management Professional (PMP) Certification (2022)">
+                                    <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                                </div>
+                                <button type="button" class="add-button" onclick="addBulletPoint(this)">+ Add Bullet Point</button>
+                            </div>
+                            <p class="guidance">Add any relevant certifications, notable projects, awards, or volunteer experience. Use bullet points for clarity.</p>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-button" onclick="addOptionalSection()">+ Add Optional Section</button>
+            </section>
+
+            <div class="download-buttons-container">
+                <button type="button" class="download-button doc-only" onclick="generateResume('doc')">Download as .DOC</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Helper function to create new elements
+        function createElement(tag, classes = [], attributes = {}) {
+            const element = document.createElement(tag);
+            if (classes.length > 0) {
+                element.classList.add(...classes);
+            }
+            for (const key in attributes) {
+                element.setAttribute(key, attributes[key]);
+            }
+            return element;
+        }
+
+        // Function to handle autofill on tab
+        function setupAutofill(inputElement) {
+            inputElement.addEventListener('keydown', function(event) {
+                if (event.key === 'Tab' && this.value.trim() === '' && this.placeholder) {
+                    this.value = this.placeholder;
+                }
+            });
+        }
+
+        // --- Work Experience Functions ---
+        function addBulletPoint(button) {
+            const container = button.previousElementSibling; // The .bullet-point-container
+            const newBulletPoint = createElement('div', ['bullet-point-item']);
+            newBulletPoint.innerHTML = `
+                <input type="text" class="responsibility-input" placeholder="Quantify your achievements and responsibilities using action verbs and numbers.">
+                <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+            `;
+            container.appendChild(newBulletPoint);
+            setupAutofill(newBulletPoint.querySelector('.responsibility-input')); // Setup autofill for new input
+        }
+
+        function removeBulletPoint(button) {
+            button.closest('.bullet-point-item').remove();
+        }
+
+        function addExperience() {
+            const container = document.getElementById('experienceContainer');
+            const newExperience = createElement('div', ['experience-item']);
+            newExperience.innerHTML = `
+                <button type="button" class="remove-button" onclick="removeExperience(this)">Remove</button>
+                <div>
+                    <label class="field-label">Job Title</label>
+                    <input type="text" class="job-title-input" placeholder="e.g., Senior Product Manager">
+                    <p class="guidance">Use the exact job title from the job description if possible.</p>
+                </div>
+                <div class="mt-4">
+                    <label class="field-label">Company Name</label>
+                    <input type="text" class="company-name-input" placeholder="e.g., Global Innovations Corp.">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="field-label">Location</label>
+                        <input type="text" class="job-location-input" placeholder="e.g., San Francisco, CA">
+                    </div>
+                    <div>
+                        <label class="field-label">Dates (e.g., Jan 2020 - Present or Jan 2018 - Dec 2019)</label>
+                        <input type="text" class="job-dates-input" placeholder="e.g., Jan 2020 - Present">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="field-label">Responsibilities & Achievements (use bullet points)</label>
+                    <div class="bullet-point-container">
+                        <div class="bullet-point-item">
+                            <input type="text" class="responsibility-input" placeholder="Developed and launched new features, increasing user engagement by 25%.">
+                            <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                        </div>
+                        <button type="button" class="add-button" onclick="addBulletPoint(this)">+ Add Bullet Point</button>
+                    </div>
+                    <p class="guidance">Use strong action verbs. Quantify achievements with numbers and metrics. **Tailor bullet points to match keywords in the job description.**</p>
+                </div>
+            `;
+            container.appendChild(newExperience);
+            // Setup autofill for newly added inputs
+            setupAutofill(newExperience.querySelector('.job-title-input'));
+            setupAutofill(newExperience.querySelector('.company-name-input'));
+            setupAutofill(newExperience.querySelector('.job-location-input'));
+            setupAutofill(newExperience.querySelector('.job-dates-input'));
+            setupAutofill(newExperience.querySelector('.responsibility-input'));
+        }
+
+        function removeExperience(button) {
+            button.closest('.experience-item').remove();
+        }
+
+        // --- Education Functions ---
+        function addEducation() {
+            const container = document.getElementById('educationContainer');
+            const newEducation = createElement('div', ['education-item']);
+            newEducation.innerHTML = `
+                <button type="button" class="remove-button" onclick="removeEducation(this)">Remove</button>
+                <div>
+                    <label class="field-label">Degree/Qualification</label>
+                    <input type="text" class="degree-input" placeholder="e.g., Master of Business Administration">
+                    <p class="guidance">e.g., Bachelor of Arts, Master of Science, Ph.D., High School Diploma.</p>
+                </div>
+                <div class="mt-4">
+                    <label class="field-label">University/Institution</label>
+                    <input type="text" class="university-input" placeholder="e.g., City University">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="field-label">Location</label>
+                        <input type="text" class="education-location-input" placeholder="e.g., City, State">
+                    </div>
+                    <div>
+                        <label class="field-label">Graduation Date (e.g., May 2019)</label>
+                        <input type="text" class="graduation-date-input" placeholder="e.g., May 2019">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="field-label">Relevant Coursework/GPA (Optional)</label>
+                    <input type="text" class="coursework-gpa-input" placeholder="e.g., Relevant Coursework: Advanced Marketing; GPA: 3.9/4.0">
+                    <p class="guidance">Include GPA if 3.5 or higher. List relevant courses if you're a recent graduate.</p>
+                </div>
+            `;
+            container.appendChild(newEducation);
+            // Setup autofill for newly added inputs
+            setupAutofill(newEducation.querySelector('.degree-input'));
+            setupAutofill(newEducation.querySelector('.university-input'));
+            setupAutofill(newEducation.querySelector('.education-location-input'));
+            setupAutofill(newEducation.querySelector('.graduation-date-input'));
+            setupAutofill(newEducation.querySelector('.coursework-gpa-input'));
+        }
+
+        function removeEducation(button) {
+            button.closest('.education-item').remove();
+        }
+
+        // --- Skills Functions ---
+        function addSkillCategory() {
+            const container = document.getElementById('skillsContainer');
+            const newSkillCategory = createElement('div', ['skill-category-item']);
+            newSkillCategory.innerHTML = `
+                <button type="button" class="remove-button" onclick="removeSkillCategory(this)">Remove</button>
+                <div>
+                    <label class="field-label">Skill Category (e.g., Programming Languages, Frameworks, Tools, Soft Skills)</label>
+                    <input type="text" class="skill-category-name-input" placeholder="e.g., Cloud Platforms">
+                </div>
+                <div class="mt-4">
+                    <label class="field-label">Skills (comma-separated)</label>
+                    <input type="text" class="skills-list-input" placeholder="e.g., AWS, Azure, Google Cloud">
+                    <p class="guidance">List specific skills relevant to the job. **Use keywords directly from the job description.**</p>
+                </div>
+            `;
+            container.appendChild(newSkillCategory);
+            // Setup autofill for newly added inputs
+            setupAutofill(newSkillCategory.querySelector('.skill-category-name-input'));
+            setupAutofill(newSkillCategory.querySelector('.skills-list-input'));
+        }
+
+        function removeSkillCategory(button) {
+            button.closest('.skill-category-item').remove();
+        }
+
+        // --- Optional Sections Functions ---
+        function addOptionalSection() {
+            const container = document.getElementById('optionalContainer');
+            const newOptionalSection = createElement('div', ['optional-item']);
+            newOptionalSection.innerHTML = `
+                <button type="button" class="remove-button" onclick="removeOptional(this)">Remove</button>
+                <div>
+                    <label class="field-label">Section Title (e.g., Certifications, Projects, Awards, Volunteer Work)</label>
+                    <input type="text" class="optional-title-input" placeholder="e.g., Projects">
+                </div>
+                <div class="mt-4">
+                    <label class="field-label">Details (use bullet points)</label>
+                    <div class="bullet-point-container">
+                        <div class="bullet-point-item">
+                            <input type="text" class="optional-detail-input" placeholder="Developed a real-time chat application using WebSockets and Node.js.">
+                            <button type="button" class="remove-button" onclick="removeBulletPoint(this)">Remove</button>
+                        </div>
+                        <button type="button" class="add-button" onclick="addBulletPoint(this)">+ Add Bullet Point</button>
+                    </div>
+                    <p class="guidance">Add any relevant certifications, notable projects, awards, or volunteer experience. Use bullet points for clarity.</p>
+                </div>
+            `;
+            container.appendChild(newOptionalSection);
+            // Setup autofill for newly added inputs
+            setupAutofill(newOptionalSection.querySelector('.optional-title-input'));
+            setupAutofill(newOptionalSection.querySelector('.optional-detail-input'));
+        }
+
+        function removeOptional(button) {
+            button.closest('.optional-item').remove();
+        }
+
+        // --- Generate Resume Content Function (reused for all formats) ---
+        function generateResumeContent() {
+            let resumeHtml = ""; // For DOC generation
+
+            // Personal Information
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const linkedin = document.getElementById('linkedin').value;
+            const portfolio = document.getElementById('portfolio').value;
+
+            resumeHtml += `<div style="text-align: center; margin-bottom: 20px; font-family: 'Inter', sans-serif;">
+                               <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 5px; color: #1f2937;">${name}</h1>
+                               <p style="font-size: 14px; color: #6b7280; line-height: 1.4;">${email}${phone ? ' | ' + phone : ''}${linkedin ? ' | ' + linkedin : ''}${portfolio ? ' | ' + portfolio : ''}</p>
+                           </div>`;
+
+            // Professional Summary
+            const summary = document.getElementById('summary').value;
+            if (summary) {
+                resumeHtml += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; color: #1f2937;">PROFESSIONAL SUMMARY</h2>
+                               <p style="font-size: 14px; line-height: 1.6; margin-bottom: 15px;">${summary}</p>`;
+            }
+
+            // Work Experience
+            const experienceItems = document.querySelectorAll('#experienceContainer .experience-item');
+            if (experienceItems.length > 0) {
+                resumeHtml += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; color: #1f2937;">WORK EXPERIENCE</h2>`;
+                experienceItems.forEach(item => {
+                    const jobTitle = item.querySelector('.job-title-input').value;
+                    const companyName = item.querySelector('.company-name-input').value;
+                    const jobLocation = item.querySelector('.job-location-input').value;
+                    const jobDates = item.querySelector('.job-dates-input').value;
+                    const responsibilities = Array.from(item.querySelectorAll('.responsibility-input'))
+                                                 .map(input => input.value.trim())
+                                                 .filter(text => text !== '');
+
+                    if (jobTitle || companyName || jobDates) {
+                        resumeHtml += `<div style="margin-bottom: 15px;">
+                                           <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #1f2937;">${jobTitle ? jobTitle : 'Job Title'} <span style="font-weight: normal; color: #4b5563;">| ${companyName ? companyName : ''}${jobLocation ? ' | ' + jobLocation : ''}</span></h3>
+                                           <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">${jobDates ? jobDates : 'Dates'}</p>
+                                           <ul style="list-style-type: disc; margin-left: 20px; font-size: 14px; line-height: 1.5;">`;
+                        responsibilities.forEach(res => {
+                            resumeHtml += `<li>${res}</li>`;
+                        });
+                        resumeHtml += `</ul></div>`;
+                    }
+                });
+            }
+
+            // Education
+            const educationItems = document.querySelectorAll('#educationContainer .education-item');
+            if (educationItems.length > 0) {
+                resumeHtml += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; color: #1f2937;">EDUCATION</h2>`;
+                educationItems.forEach(item => {
+                    const degree = item.querySelector('.degree-input').value;
+                    const university = item.querySelector('.university-input').value;
+                    const educationLocation = item.querySelector('.education-location-input').value;
+                    const graduationDate = item.querySelector('.graduation-date-input').value;
+                    const courseworkGpa = item.querySelector('.coursework-gpa-input').value;
+
+                    if (degree || university || graduationDate) {
+                        resumeHtml += `<div style="margin-bottom: 15px;">
+                                           <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #1f2937;">${degree ? degree : 'Degree'} <span style="font-weight: normal; color: #4b5563;">| ${university ? university : ''}${educationLocation ? ' | ' + educationLocation : ''}</span></h3>
+                                           <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">${graduationDate ? graduationDate : 'Graduation Date'}</p>`;
+                        if (courseworkGpa) resumeHtml += `<p style="font-size: 14px; line-height: 1.5;">${courseworkGpa}</p>`;
+                        resumeHtml += `</div>`;
+                    }
+                });
+            }
+
+            // Skills
+            const skillCategories = document.querySelectorAll('#skillsContainer .skill-category-item');
+            if (skillCategories.length > 0) {
+                resumeHtml += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; color: #1f2937;">SKILLS</h2>`;
+                skillCategories.forEach(item => {
+                    const categoryName = item.querySelector('.skill-category-name-input').value;
+                    const skillsList = item.querySelector('.skills-list-input').value;
+                    if (categoryName && skillsList) {
+                        resumeHtml += `<p style="font-size: 14px; margin-bottom: 5px;"><strong>${categoryName}:</strong> ${skillsList}</p>`;
+                    }
+                });
+                resumeHtml += `\n`;
+            }
+
+            // Optional Sections
+            const optionalSections = document.querySelectorAll('#optionalContainer .optional-item');
+            optionalSections.forEach(item => {
+                const sectionTitle = item.querySelector('.optional-title-input').value;
+                const details = Array.from(item.querySelectorAll('.optional-detail-input'))
+                                     .map(input => input.value.trim())
+                                     .filter(text => text !== '');
+
+                if (sectionTitle && details.length > 0) {
+                    resumeHtml += `<h2 style="font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; color: #1f2937;">${sectionTitle.toUpperCase()}</h2>
+                                   <ul style="list-style-type: disc; margin-left: 20px; font-size: 14px; line-height: 1.5;">`;
+                    details.forEach(detail => {
+                        resumeHtml += `<li>${detail}</li>`;
+                    });
+                    resumeHtml += `</ul>`;
+                }
+            });
+
+            return { htmlContent: resumeHtml };
+        }
+
+        // --- Download Function ---
+        function generateResume(format) {
+            const { htmlContent } = generateResumeContent();
+            const name = document.getElementById('name').value.replace(/\s/g, '_') || 'resume';
+
+            if (format === 'doc') {
+                const htmlString = `
+                    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                    <head><title>Resume</title>
+                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                    <style>
+                        /* Set 1-inch margins (25.4mm) for the document */
+                        @page {
+                            margin: 25.4mm;
+                        }
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            margin: 0; /* Override default body margin as @page handles it */
+                            color: #374151;
+                        }
+                        h1 { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 5px; color: #1f2937; }
+                        p { font-size: 14px; line-height: 1.6; color: #374151; margin-bottom: 10px; }
+                        h2 { font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; color: #1f2937; }
+                        h3 { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #1f2937; }
+                        ul { list-style-type: disc; margin-left: 20px; font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
+                        li { margin-bottom: 5px; }
+                        strong { font-weight: bold; }
+                    </style>
+                    </head>
+                    <body>
+                    ${htmlContent}
+                    </body>
+                    </html>`;
+
+                const blob = new Blob([htmlString], { type: 'application/msword' }); // MIME type for .doc
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${name}_Resume.doc`; // Use .doc extension
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // Initial setup for existing input fields
+        document.addEventListener('DOMContentLoaded', () => {
+            const allInputsAndTextareas = document.querySelectorAll('input[placeholder], textarea[placeholder]');
+            allInputsAndTextareas.forEach(input => {
+                setupAutofill(input);
+            });
+        });
+    </script>
+</body>
+</html>
